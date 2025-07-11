@@ -270,6 +270,7 @@ def compile(src, target=None, options=None):
     codegen_fns = backend.get_codegen_implementation()
     try:
         module = src.make_ir(options, codegen_fns, context)
+        print(f'module {module}')
     except Exception as e:
         filter_traceback(e)
         raise
