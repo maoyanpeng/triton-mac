@@ -98,6 +98,7 @@ class CUDABackend(BaseBackend):
 
     @staticmethod
     def supports_target(target: GPUTarget):
+        return False
         return target.backend == 'cuda'
 
     def __init__(self, target: GPUTarget) -> None:

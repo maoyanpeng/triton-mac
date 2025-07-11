@@ -7,7 +7,7 @@ from pathlib import Path
 from triton.runtime.build import _build
 from triton.runtime.cache import get_cache_manager
 from triton.backends.compiler import GPUTarget
-from triton.backends.driver import GPUDriver
+from triton.backends.driver import NPUDriver
 
 dirname = os.path.dirname(os.path.realpath(__file__))
 include_dir = [os.path.join(dirname, "include")]
@@ -349,7 +349,7 @@ PyMODINIT_FUNC PyInit___triton_launcher(void) {{
     return src
 
 
-class CudaLauncher(object):
+class MacLauncher(object):
 
     def __init__(self, src, metadata):
         ids = {"ids_of_const_exprs": src.fn.constexprs if hasattr(src, "fn") else tuple()}
@@ -365,11 +365,11 @@ class CudaLauncher(object):
         self.launch(*args, **kwargs)
 
 
-class CudaDriver(GPUDriver):
+class MacDriver(NPUDriver):
 
     def __init__(self):
         self.utils = CudaUtils()  # TODO: make static
-        self.launcher_cls = CudaLauncher
+        self.launcher_cls = MacLauncher
         super().__init__()
 
     def get_current_target(self):
@@ -381,6 +381,6 @@ class CudaDriver(GPUDriver):
 
     @staticmethod
     def is_active():
-        return False
-        import torch
-        return torch.cuda.is_available() and (torch.version.hip is None)
+        return True
+        # import torch
+        # return torch.cuda.is_available() and (torch.version.hip is None)

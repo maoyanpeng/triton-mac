@@ -22,7 +22,7 @@
 #include "mlir/Transforms/LocationSnapshot.h"
 #include "mlir/Transforms/Passes.h"
 
-#include "triton/Analysis/Allocation.h"
+// #include "triton/Analysis/Allocation.h"
 #include "triton/Dialect/Triton/IR/Dialect.h"
 #include "triton/Dialect/Triton/IR/Types.h"
 #include "triton/Dialect/Triton/IR/Utility.h"
@@ -163,11 +163,11 @@ void init_triton_ir(py::module &&m) {
       .value("RELAXED", MemSemantic::RELAXED)
       .export_values();
 
-  py::enum_<MemSyncScope>(m, "MEM_SYNC_SCOPE", py::module_local())
-      .value("GPU", MemSyncScope::GPU)
-      .value("CTA", MemSyncScope::CTA)
-      .value("SYSTEM", MemSyncScope::SYSTEM)
-      .export_values();
+  // py::enum_<MemSyncScope>(m, "MEM_SYNC_SCOPE", py::module_local())
+  //     .value("GPU", MemSyncScope::GPU)
+  //     .value("CTA", MemSyncScope::CTA)
+  //     .value("SYSTEM", MemSyncScope::SYSTEM)
+  //     .export_values();
 
   py::enum_<EvictionPolicy>(m, "EVICTION_POLICY", py::module_local())
       .value("NORMAL", EvictionPolicy::NORMAL)
@@ -205,9 +205,9 @@ void init_triton_ir(py::module &&m) {
 
   m.def("load_dialects", [](MLIRContext &context) {
     DialectRegistry registry;
-    registry.insert<TritonDialect, ::mlir::triton::gpu::TritonGPUDialect,
+    registry.insert<TritonDialect, //::mlir::triton::gpu::TritonGPUDialect,
                     math::MathDialect, arith::ArithDialect, index::IndexDialect,
-                    scf::SCFDialect, ::mlir::gpu::GPUDialect,
+                    scf::SCFDialect, // ::mlir::gpu::GPUDialect,
                     cf::ControlFlowDialect, LLVM::LLVMDialect>();
     registerBuiltinDialectTranslation(registry);
     registerLLVMDialectTranslation(registry);
@@ -1529,8 +1529,8 @@ void init_triton_ir(py::module &&m) {
                  operand);
            })
       // Force GPU barrier
-      .def("create_barrier",
-           [](TritonOpBuilder &self) { self.create<mlir::gpu::BarrierOp>(); })
+      // .def("create_barrier",
+      //      [](TritonOpBuilder &self) { self.create<mlir::gpu::BarrierOp>(); })
       // Make a block pointer (tensor pointer in Triton IR)
       .def("create_make_block_ptr",
            [](TritonOpBuilder &self, Value &base, std::vector<Value> &shape,

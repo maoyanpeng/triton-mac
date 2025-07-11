@@ -264,10 +264,6 @@ def compile(src, target=None, options=None):
     # run compilation pipeline  and populate metadata
     stages = dict()
     backend.add_stages(stages, options)
-    first_stage = list(stages.keys()).index(src.ext)
-    # when the source is an IR file, don't apply the passes related to this stage. This makes it easier to write IR level tests.
-    if ir_source:
-        first_stage += 1
     context = ir.context()
     ir.load_dialects(context)
     backend.load_dialects(context)
@@ -277,6 +273,12 @@ def compile(src, target=None, options=None):
     except Exception as e:
         filter_traceback(e)
         raise
+    exit(0)
+
+    first_stage = list(stages.keys()).index(src.ext)
+    # when the source is an IR file, don't apply the passes related to this stage. This makes it easier to write IR level tests.
+    if ir_source:
+        first_stage += 1
     use_ttgir_loc = os.environ.get("USE_TTGIR_LOC", "0") == "1"
     for ext, compile_ir in list(stages.items())[first_stage:]:
         next_module = compile_ir(module, metadata)
