@@ -30,5 +30,10 @@ void MyOp::custom_func() {
   return ;
 }
 
+// void My_AddFOp::build(OpBuilder &builder, OperationState &state,
+//                       Value lhs, Value rhs) {
+//   build(builder, state, lhs.getType(), lhs, rhs);
+// }
+
 } // namespace my
 } // namespace mlir
