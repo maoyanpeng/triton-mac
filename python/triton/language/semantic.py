@@ -1037,6 +1037,15 @@ def load(ptr: tl.tensor, mask: Optional[tl.tensor], other: Optional[tl.tensor], 
         return _load_legacy(ptr, mask, other, boundary_check, padding, cache, eviction, is_volatile, builder)
 
 
+def load_ex(ptr: tl.tensor, tensor_size: int, valid_size: int, other: float, _builder: ir.builder):
+    ret_ty = tl.block_type(ptr.type.element_ty, [tensor_size])
+    return tl.tensor(_builder.create_load_ex(ptr.handle, tensor_size, valid_size.handle), ret_ty)
+
+
+def store_ex(ptr: tl.tensor, value: tl.tensor, valid_size: int, _builder: ir.builder):
+    return tl.tensor(_builder.create_store_ex(ptr.handle, value.handle, valid_size.handle), tl.void)
+
+
 def descriptor_load(desc_ptr: tl.tensor, offsets, cache_modifier: str, eviction_policy: str, type,
                     builder: ir.builder) -> tl.tensor:
     offsets = _convert_to_ir_values(builder, offsets, require_i64=False)

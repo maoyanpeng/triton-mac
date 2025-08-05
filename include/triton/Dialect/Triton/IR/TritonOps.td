@@ -350,6 +350,49 @@ def TT_StoreOp : TT_Op<"store", [
 }
 
 //
+// Loadex/Storeex Ops
+//
+def TT_LoadexOp : TT_Op<"load_ex", [MemoryEffects<[MemRead<GlobalMemory>]>, DeclareOpInterfaceMethods<InferTypeOpInterface>]> {
+    let summary = "Load from a tensor of pointers or from a tensor pointer";
+
+    let arguments = (
+      ins
+      TT_PtrType:$ptr,
+      I32Attr:$tensor_size,
+      TT_Int:$valid_size
+    );
+
+    let results = (outs TT_Tensor:$result);
+
+    let builders = [
+        OpBuilder<(ins "Value":$ptr, "int":$tensor_size, "Value":$valid_size)>,
+    ];
+
+    // let assemblyFormat = [{
+    //   $ptr `,` $tensor_size `,` $valid_size attr-dict `:` type($ptr) `->` type($result)
+    // }];
+
+    let hasVerifier = 1;
+}
+
+
+def TT_StoreexOp : TT_Op<"store_ex", [MemoryEffects<[MemWrite<GlobalMemory>]>]> {
+    let summary = "Store by a tensor of pointers or by a tensor pointer";
+
+    let arguments = (
+      ins
+      TT_PtrType:$ptr,
+      TT_Tensor:$value,
+      TT_Int:$valid_size
+    );
+
+    // let assemblyFormat = [{
+    //   $ptr `,` $value `,` $valid_size attr-dict `:` type($ptr)
+    // }];
+}
+
+
+//
 // Atomic Ops
 //
 def TT_AtomicRMWOp : TT_Op<"atomic_rmw", [

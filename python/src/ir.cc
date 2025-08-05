@@ -1206,11 +1206,24 @@ void init_triton_ir(py::module &&m) {
                                         isVolatile);
            })
       .def("create_store",
-           [](TritonOpBuilder &self, Value &ptrs, Value &value,
-              CacheModifier cacheModifier,
-              EvictionPolicy evictionPolicy) -> void {
-             self.create<StoreOp>(ptrs, value, cacheModifier, evictionPolicy);
-           })
+        [](TritonOpBuilder &self, Value &ptrs, Value &value,
+          CacheModifier cacheModifier,
+          EvictionPolicy evictionPolicy) -> void {
+            self.create<StoreOp>(ptrs, value, cacheModifier, evictionPolicy);
+          })
+
+      .def("create_load_ex",
+        [](TritonOpBuilder &self, Value &ptr, int tensor_size, Value &valid_size) -> Value {
+            // Type ptr_type = ptr.getType();
+            // ptr_type.dump();
+            return self.create<LoadexOp>(ptr, tensor_size, valid_size);
+          })
+
+      .def("create_store_ex",
+        [](TritonOpBuilder &self, Value &ptr, Value &value, Value &valid_size) -> void {
+            self.create<StoreexOp>(ptr, value, valid_size);
+          })
+
       .def("create_tensor_pointer_load",
            [](TritonOpBuilder &self, Value &ptr,
               std::vector<int32_t> &boundaryCheck,

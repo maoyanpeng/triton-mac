@@ -978,5 +978,36 @@ void ExternElementwiseOp::getEffects(
                        SideEffects::DefaultResource::get());
 }
 
+LogicalResult LoadexOp::verify() {
+  auto ptrType = getPtr().getType();
+  if (!isa<PointerType>(ptrType)) {
+    return emitOpError("ptr must be a tensor of pointers");
+  }
+  return success();
+}
+
+void LoadexOp::build(OpBuilder &builder, OperationState &state,
+                   Value ptr, int tensor_size, Value valid_size) {
+  SmallVector<Type> inferredReturnTypes;
+  auto dst_tensor_dtype = cast<PointerType>(ptr.getType()).getPointeeType();
+  inferredReturnTypes.push_back(RankedTensorType::get({tensor_size}, dst_tensor_dtype));
+  LoadexOp::build(builder, state, inferredReturnTypes, ptr, tensor_size, valid_size);
+}
+
+LogicalResult LoadexOp::inferReturnTypes(
+    MLIRContext *context, std::optional<Location> location, ValueRange operands,
+    DictionaryAttr attributes, OpaqueProperties properties, RegionRange regions,
+    SmallVectorImpl<Type> &inferredReturnTypes) {
+  Value ptr = operands[0];
+  Properties *prop = properties.as<Properties *>();
+  int tensor_size = prop->tensor_size.getInt();
+  auto dst_tensor_dtype = cast<PointerType>(ptr.getType()).getPointeeType();
+
+  inferredReturnTypes.push_back(
+      RankedTensorType::get({tensor_size}, dst_tensor_dtype));
+
+  return success();
+}
+
 } // namespace triton
 } // namespace mlir

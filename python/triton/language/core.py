@@ -1599,6 +1599,16 @@ def load(pointer, mask=None, other=None, boundary_check=(), padding_option="", c
 
 
 @builtin
+def load_ex(pointer, tensor_size, valid_size, other=None, _builder=None):
+    return semantic.load_ex(pointer, tensor_size, valid_size, other, _builder)
+
+
+@builtin
+def store_ex(pointer, value, valid_size, _builder=None):
+    return semantic.store_ex(pointer, value, valid_size, _builder)
+
+
+@builtin
 def _experimental_descriptor_load(desc_pointer, offsets, shape, dtype, _builder=None):
     """
     Experimental feature to access TMA descriptors loads. This is an escape hatch to easily exercise TTGIR operations.
