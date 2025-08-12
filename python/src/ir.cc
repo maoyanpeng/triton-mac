@@ -27,6 +27,7 @@
 #include "triton/Dialect/Triton/IR/Types.h"
 #include "triton/Dialect/Triton/IR/Utility.h"
 #include "triton/Tools/Sys/GetEnv.hpp"
+#include "triton/Dialect/EmitC/IR/register_emitc_ext.h"
 
 namespace {
 
@@ -211,6 +212,7 @@ void init_triton_ir(py::module &&m) {
                     cf::ControlFlowDialect, LLVM::LLVMDialect>();
     registerBuiltinDialectTranslation(registry);
     registerLLVMDialectTranslation(registry);
+    mlir::registerEmitCExt(registry);
     context.appendDialectRegistry(registry);
     context.loadAllAvailableDialects();
   });
