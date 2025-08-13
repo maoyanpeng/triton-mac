@@ -7,6 +7,7 @@ namespace mlir {
 namespace triton {
 
 std::unique_ptr<Pass> createArithToEmitcConversionPass();
+std::unique_ptr<Pass> createTritonToEmitcConversionPass();
 
 } // namespace triton
 } // namespace mlir

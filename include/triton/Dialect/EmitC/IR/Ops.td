@@ -63,4 +63,10 @@ def EmitC_MinSIOp : EmitC_BinaryOp<"minsi", [CExpression, SameOperandsAndResultS
 }
 
 
+def EmitC_GetProgramIdOp : EmitC_Op<"get_program_id", [CExpression]> {
+  let summary = "get program id";
+  let results = (outs I32:$result);
+}
+
+
 #endif // EMITC_OPS

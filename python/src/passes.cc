@@ -75,6 +75,8 @@ void init_triton_passes_convert(py::module &&m) {
   ADD_PASS_WRAPPER_0("add_index_to_llvmir", createConvertIndexToLLVMPass);
   ADD_PASS_WRAPPER_0("add_arith_to_llvmir", createArithToLLVMConversionPass);
   ADD_PASS_WRAPPER_0("add_arith_to_emitc", triton::createArithToEmitcConversionPass);
+  ADD_PASS_WRAPPER_0("add_triton_to_emitc", triton::createTritonToEmitcConversionPass);
+
 }
 
 void init_triton_passes_llvmir(py::module &&m) {
