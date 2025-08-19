@@ -312,12 +312,29 @@ class CUDABackend(BaseBackend):
                 os.remove(fbin)
         return cubin
 
+    @staticmethod
+    def make_emitc(src, metadata, options):
+        mod = src
+        # TTIR -> EMITC IR
+        pm = ir.pass_manager(mod.context)
+        pm.enable_debug()
+        passes.convert.add_triton_to_emitc(pm)
+        passes.convert.add_arith_to_emitc(pm)
+
+        pm.run(mod)
+        print(f'make_emitc: {type(mod)} {mod}')
+        exit()
+        return mod
+
+
     def add_stages(self, stages, options):
         stages["ttir"] = lambda src, metadata: self.make_ttir(src, metadata, options)
-        stages["ttgir"] = lambda src, metadata: self.make_ttgir(src, metadata, options, self.capability)
-        stages["llir"] = lambda src, metadata: self.make_llir(src, metadata, options, self.capability)
-        stages["ptx"] = lambda src, metadata: self.make_ptx(src, metadata, options, self.capability)
-        stages["cubin"] = lambda src, metadata: self.make_cubin(src, metadata, options, self.capability)
+        stages["emitc"] = lambda src, metadata: self.make_emitc(src, metadata, options)
+
+        # stages["ttgir"] = lambda src, metadata: self.make_ttgir(src, metadata, options, self.capability)
+        # stages["llir"] = lambda src, metadata: self.make_llir(src, metadata, options, self.capability)
+        # stages["ptx"] = lambda src, metadata: self.make_ptx(src, metadata, options, self.capability)
+        # stages["cubin"] = lambda src, metadata: self.make_cubin(src, metadata, options, self.capability)
 
     @functools.lru_cache()
     def hash(self):
