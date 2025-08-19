@@ -1,6 +1,7 @@
 add_triton_library(TritonToEmitC
     arith_to_emitc_pass.cpp
     triton_to_emitc_pass.cpp
+    type_convert.cpp
 
     DEPENDS
     TritonConversionEmitCPassIncGen

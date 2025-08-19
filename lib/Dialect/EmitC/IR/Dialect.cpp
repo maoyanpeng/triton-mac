@@ -3,6 +3,9 @@
 #include "mlir/IR/BuiltinOps.h"
 #include "mlir/IR/Dialect.h"
 
+#define GET_TYPEDEF_CLASSES
+#include "mlir/Dialect/EmitC/IR/EmitCTypes.h.inc"
+
 #include "triton/Dialect/EmitC/IR/Dialect.h.inc"
 #include "triton/Dialect/EmitC/IR/Dialect.cpp.inc"
 

@@ -20,6 +20,8 @@
 #include "triton/Dialect/EmitC/IR/Dialect.h.inc"
 #include "triton/Dialect/Triton/IR/Dialect.h.inc"
 
+#include "type_convert.h"
+
 #define GET_OP_CLASSES
 #include "triton/Dialect/EmitC/IR/Ops.h.inc"
 
@@ -36,39 +38,6 @@ static void addNamedAttrs(Operation *op, DictionaryAttr dictAttrs) {
     if (!op->hasAttr(attr.getName()))
       op->setAttr(attr.getName(), attr.getValue());
 }
-
-class TritonToEmitCTypeConverter : public mlir::TypeConverter {
-public:
-  TritonToEmitCTypeConverter() {
-    // 添加默认转换：保留标准类型（如整数、浮点数）
-    addConversion([](Type type) -> std::optional<Type> {
-      return type;
-    });
-
-    // 转换 Triton 指针类型 -> EmitC 指针类型
-    addConversion([](triton::PointerType type) -> Type {
-      return emitc::PointerType::get(type.getPointeeType());
-    });
-
-    // 转换 Triton Tensor 类型（可能需要展平或特殊处理）
-    addConversion([](RankedTensorType tensorType) -> Type {
-      return emitc::ArrayType::get(tensorType.getShape(), tensorType.getElementType());
-    });
-
-    addSourceMaterialization([&](OpBuilder &builder, Type resultType,
-                                ValueRange inputs,
-                                Location loc) -> std::optional<Value> {
-      if (inputs.size() != 1) return std::nullopt;
-      return builder.create<UnrealizedConversionCastOp>(loc, resultType, inputs).getResult(0);
-    });
-    addTargetMaterialization([&](OpBuilder &builder, Type resultType,
-                                ValueRange inputs,
-                                Location loc) -> std::optional<Value> {
-      if (inputs.size() != 1) return std::nullopt;
-      return builder.create<UnrealizedConversionCastOp>(loc, resultType, inputs).getResult(0);
-    });
-  }
-};
 
 class CallOpConversion final : public OpConversionPattern<triton::CallOp> {
 public:
@@ -183,7 +152,10 @@ void populate_triton_to_emitc_patterns(TypeConverter &typeConverter, RewritePatt
     CallOpConversion,
     FuncOpConversion,
     ReturnOpConversion,
-    TritonOpConversion<triton::GetProgramIdOp, emitc::GetProgramIdOp>
+    GenericOpPattern<triton::LoadexOp, emitc::LoadexOp>,
+    GenericOpPattern<triton::StoreexOp, emitc::StoreexOp>,
+    GenericOpPattern<triton::GetProgramIdOp, emitc::GetProgramIdOp>,
+    GenericOpPattern<triton::AddPtrOp, emitc::AddOp>
   >(typeConverter, ctx, /*benefit=*/1);
   // clang-format on
 }
@@ -201,7 +173,10 @@ class ConvertTritonToEmitC : public ConvertTritonToEmitCBase<ConvertTritonToEmit
       triton::CallOp,
       triton::FuncOp,
       triton::ReturnOp,
-      triton::GetProgramIdOp
+      triton::LoadexOp,
+      triton::StoreexOp,
+      triton::GetProgramIdOp,
+      triton::AddPtrOp
     >();
 
     RewritePatternSet patterns(&getContext());

@@ -44,6 +44,32 @@ def IntegerIndexOrOpaqueType : AnyTypeOf<[EmitCIntegerType, Index, EmitC_OpaqueT
 def FloatIntegerIndexOrOpaqueType : AnyTypeOf<[EmitCFloatType, IntegerIndexOrOpaqueType]>;
 
 
+def EmitC_LoadexOp : EmitC_Op<"load_ex", [CExpression]> {
+  let summary = "Load from a tensor of pointers or from a tensor pointer";
+
+  let arguments = (
+    ins
+    EmitC_PointerType:$ptr,
+    I32Attr:$tensor_size,
+    EmitCIntegerType:$valid_size
+  );
+
+  let results = (outs EmitC_ArrayType:$result);
+}
+
+
+def EmitC_StoreexOp : EmitC_Op<"store_ex", [CExpression]> {
+  let summary = "Store by a tensor of pointers or by a tensor pointer";
+
+  let arguments = (
+    ins
+    EmitC_PointerType:$ptr,
+    EmitC_ArrayType:$value,
+    EmitCIntegerType:$valid_size
+  );
+}
+
+
 def EmitC_MinSIOp : EmitC_BinaryOp<"minsi", [CExpression, SameOperandsAndResultShape]> {
   let summary = "Min operation";
   let description = [{

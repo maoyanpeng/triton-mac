@@ -21,6 +21,8 @@
 #include "triton/Conversion/TritonToEmitC/Passes.h"
 #include "triton/Dialect/EmitC/IR/Dialect.h.inc"
 
+#include "type_convert.h"
+
 #define GET_OP_CLASSES
 #include "triton/Dialect/EmitC/IR/Ops.h.inc"
 
@@ -41,9 +43,11 @@ public:
   LogicalResult
   matchAndRewrite(ArithOp arithOp, typename ArithOp::Adaptor adaptor,
                   ConversionPatternRewriter &rewriter) const override {
-
-    rewriter.template replaceOpWithNewOp<EmitCOp>(arithOp, arithOp.getType(),
-                                                  adaptor.getOperands());
+    SmallVector<Type> retTypes;
+    if (failed(this->getTypeConverter()->convertTypes(arithOp->getResultTypes(), retTypes))) {
+      return failure();
+    }          
+    rewriter.template replaceOpWithNewOp<EmitCOp>(arithOp, retTypes, adaptor.getOperands(), arithOp->getAttrs());
 
     return success();
   }
@@ -55,6 +59,11 @@ void populate_arith_to_emitc_patterns(TypeConverter &typeConverter, RewritePatte
 
   // clang-format off
   patterns.add<
+    // 替换populateArithToEmitCPatterns中的ArithOpConversion, 增加类型转换
+    ArithOpConversion<arith::AddFOp, emitc::AddOp>,
+    ArithOpConversion<arith::DivFOp, emitc::DivOp>,
+    ArithOpConversion<arith::MulFOp, emitc::MulOp>,
+    ArithOpConversion<arith::SubFOp, emitc::SubOp>,
     // 替换populateArithToEmitCPatterns中的IntegerOpConversion
     ArithOpConversion<arith::AddIOp, emitc::AddOp>,
     ArithOpConversion<arith::MulIOp, emitc::MulOp>,
@@ -79,8 +88,7 @@ class ConvertArithToEmitC : public impl::ConvertArithToEmitCBase<ConvertArithToE
 
     RewritePatternSet patterns(&getContext());
 
-    TypeConverter typeConverter;
-    typeConverter.addConversion([](Type type) { return type; });
+    TritonToEmitCTypeConverter typeConverter;
 
     populateArithToEmitCPatterns(typeConverter, patterns);
     populate_arith_to_emitc_patterns(typeConverter, patterns);
